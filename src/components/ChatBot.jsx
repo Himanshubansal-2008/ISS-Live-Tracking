@@ -111,10 +111,26 @@ ${contextData}`;
 
       const data = await res.json();
       let reply = 'Sorry, I could not generate a response.';
-      if (Array.isArray(data) && data[0]?.generated_text) {
-        reply = data[0].generated_text.trim();
-      } else if (data.generated_text) {
-        reply = data.generated_text.trim();
+      
+      // Handle the array format (most common for this HF API endpoint)
+      if (Array.isArray(data) && data.length > 0 && data[0].generated_text) {
+        // The API often returns the prompt + the answer. We need to extract just the answer.
+        const fullText = data[0].generated_text;
+        const promptEnd = fullText.lastIndexOf('[/INST]');
+        
+        if (promptEnd !== -1) {
+          reply = fullText.substring(promptEnd + 7).trim();
+        } else {
+          reply = fullText.trim();
+        }
+      } 
+      // Handle the object format
+      else if (data.generated_text) {
+         reply = data.generated_text.trim();
+      }
+      // Handle potential errors wrapped in a 200 response
+      else if (data.error) {
+         throw new Error(data.error);
       }
 
       setMessages((prev) => [...prev, { role: 'bot', content: reply, timestamp: Date.now() }]);
