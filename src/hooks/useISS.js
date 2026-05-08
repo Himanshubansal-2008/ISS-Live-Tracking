@@ -1,8 +1,9 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { calculateSpeed } from '../utils/haversine.js';
 
-const ISS_POS_URL = 'http://api.open-notify.org/iss-now.json';
-const ASTROS_URL = 'http://api.open-notify.org/astros.json';
+const isDev = import.meta.env.DEV;
+const ISS_POS_URL = isDev ? 'http://api.open-notify.org/iss-now.json' : '/api/iss-now';
+const ASTROS_URL = isDev ? 'http://api.open-notify.org/astros.json' : '/api/astros';
 const REVERSE_GEO_URL = 'https://nominatim.openstreetmap.org/reverse';
 
 export function useISS() {

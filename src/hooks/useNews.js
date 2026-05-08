@@ -5,6 +5,7 @@ const CACHE_DURATION = 15 * 60 * 1000; // 15 minutes
 
 const CATEGORIES = ['technology', 'science'];
 const NEWS_API_BASE = 'https://newsapi.org/v2';
+const isDev = import.meta.env.DEV;
 
 function getCachedNews() {
   try {
@@ -58,11 +59,13 @@ export function useNews() {
 
       for (const category of CATEGORIES) {
         try {
-          const url = `${NEWS_API_BASE}/top-headlines?category=${category}&language=en&pageSize=5&apiKey=${apiKey}`;
+          // In production, use serverless proxy; in dev, call NewsAPI directly
+          const url = isDev
+            ? `${NEWS_API_BASE}/top-headlines?category=${category}&language=en&pageSize=5&apiKey=${apiKey}`
+            : `/api/news?category=${category}&endpoint=top-headlines`;
           const res = await fetch(url);
 
           if (!res.ok) {
-            // If NewsAPI fails, try alternative
             throw new Error(`NewsAPI returned ${res.status}`);
           }
 
@@ -78,7 +81,9 @@ export function useNews() {
         } catch {
           // Try fallback for this category
           try {
-            const fallbackUrl = `${NEWS_API_BASE}/everything?q=${category}&language=en&pageSize=5&sortBy=publishedAt&apiKey=${apiKey}`;
+            const fallbackUrl = isDev
+              ? `${NEWS_API_BASE}/everything?q=${category}&language=en&pageSize=5&sortBy=publishedAt&apiKey=${apiKey}`
+              : `/api/news?category=${category}&endpoint=everything`;
             const res = await fetch(fallbackUrl);
             if (res.ok) {
               const data = await res.json();
