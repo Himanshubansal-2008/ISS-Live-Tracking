@@ -75,7 +75,7 @@ export default function SpeedChart({ speeds }) {
   };
 
   return (
-    <div className="chart-wrapper" style={{ height: '100%', minHeight: '300px' }}>
+    <div style={{ position: 'relative', height: '280px', width: '100%' }}>
       <Line ref={chartRef} data={data} options={options} />
     </div>
   );
