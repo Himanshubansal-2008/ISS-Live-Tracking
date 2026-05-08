@@ -91,7 +91,7 @@ ${contextData}`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          model: 'mistralai/Mistral-7B-Instruct-v0.2',
+          model: 'mistralai/Mistral-7B-Instruct-v0.2:featherless-ai',
           messages: apiMessages,
           max_tokens: 300,
           temperature: 0.3,
@@ -100,7 +100,11 @@ ${contextData}`;
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.error || `AI service error: ${res.status}`);
+        let errMsg = errData.error;
+        if (typeof errMsg === 'object' && errMsg !== null) {
+          errMsg = errMsg.message || JSON.stringify(errMsg);
+        }
+        throw new Error(errMsg || `AI service error: ${res.status}`);
       }
 
       const data = await res.json();
