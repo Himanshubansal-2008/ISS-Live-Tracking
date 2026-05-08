@@ -85,24 +85,20 @@ ${contextData}`;
         { role: 'user', content: `${systemPrompt}\n\nUser question: ${userMsg.content}` }
       ];
 
-      const res = await fetch(
-        'https://api-inference.huggingface.co/models/mistralai/Mistral-7B-Instruct-v0.2',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            Authorization: `Bearer ${token}`,
+      const res = await fetch('/api/chat', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          inputs: `<s>[INST] ${systemPrompt}\n\nUser question: ${userMsg.content} [/INST]`,
+          parameters: {
+            max_new_tokens: 300,
+            temperature: 0.3,
+            return_full_text: false,
           },
-          body: JSON.stringify({
-            inputs: `<s>[INST] ${systemPrompt}\n\nUser question: ${userMsg.content} [/INST]`,
-            parameters: {
-              max_new_tokens: 300,
-              temperature: 0.3,
-              return_full_text: false,
-            },
-          }),
-        }
-      );
+        }),
+      });
 
       if (!res.ok) {
         const errData = await res.json().catch(() => ({}));
