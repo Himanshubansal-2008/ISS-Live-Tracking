@@ -34,7 +34,9 @@ export default function NewsDashboard({
             <option value="date">Sort by Date</option>
             <option value="source">Sort by Source</option>
           </select>
-          <button className="btn btn-primary" onClick={refreshNews} id="news-refresh">🔄 Refresh</button>
+          <button className="btn btn-primary" onClick={refreshNews} disabled={loading} id="news-refresh">
+            {loading ? '🔄 Refreshing...' : '🔄 Refresh'}
+          </button>
         </div>
       </div>
 

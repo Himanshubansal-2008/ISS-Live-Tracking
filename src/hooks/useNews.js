@@ -109,9 +109,16 @@ export function useNews() {
       setArticles(results);
       setCachedNews(results);
       setLoading(false);
+      
+      if (force) {
+        import('react-hot-toast').then(m => m.toast.success('News updated'));
+      }
     } catch (err) {
       setError(err.message);
       setLoading(false);
+      if (force) {
+        import('react-hot-toast').then(m => m.toast.error('Failed to refresh news'));
+      }
       // Try loading from cache even if expired
       const raw = localStorage.getItem(CACHE_KEY);
       if (raw) {
