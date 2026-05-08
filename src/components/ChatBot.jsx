@@ -91,12 +91,10 @@ ${contextData}`;
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          inputs: `<s>[INST] ${systemPrompt}\n\nUser question: ${userMsg.content} [/INST]`,
-          parameters: {
-            max_new_tokens: 300,
-            temperature: 0.3,
-            return_full_text: false,
-          },
+          model: 'mistralai/Mistral-7B-Instruct-v0.2',
+          messages: apiMessages,
+          max_tokens: 300,
+          temperature: 0.3,
         }),
       });
 
@@ -108,19 +106,11 @@ ${contextData}`;
       const data = await res.json();
       let reply = 'Sorry, I could not generate a response.';
       
-      // Handle the array format (most common for this HF API endpoint)
-      if (Array.isArray(data) && data.length > 0 && data[0].generated_text) {
-        // The API often returns the prompt + the answer. We need to extract just the answer.
-        const fullText = data[0].generated_text;
-        const promptEnd = fullText.lastIndexOf('[/INST]');
-        
-        if (promptEnd !== -1) {
-          reply = fullText.substring(promptEnd + 7).trim();
-        } else {
-          reply = fullText.trim();
-        }
-      } 
-      // Handle the object format
+      // Handle OpenAI-like chat completions format
+      if (data.choices && data.choices.length > 0 && data.choices[0].message) {
+         reply = data.choices[0].message.content.trim();
+      }
+      // Handle the object format (fallback)
       else if (data.generated_text) {
          reply = data.generated_text.trim();
       }
